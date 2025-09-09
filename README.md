@@ -1,7 +1,6 @@
 🌐 Blog Website
 
-A simple and minimal Blog Website created using Vibe Coding.
-This project is designed to showcase a personal blog where users can explore posts, ideas, and updates in a clean and responsive layout.
+A simple and minimal Blog Website created using Vibe Coding. This project is designed to showcase a personal blog where users can explore posts, ideas, and updates in a clean and responsive layout.
 
 🚀 Features
 
@@ -31,11 +30,9 @@ Clone the repository
 
 git clone https://github.com/your-username/your-repo-name.git
 
-
 Open the project folder
 
 cd your-repo-name
-
 
 Open index.html in your browser and start exploring 🚀
 
