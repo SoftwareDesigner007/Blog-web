@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Markdown Blog</title>
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/highlight.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f3f4f6;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+        }
+
+        nav a:hover, nav a.active {
+            background-color: rgba(79, 70, 229, 0.2);
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(17, 24, 39, 0.9));
+            border-radius: 0 0 var(--radius) var(--radius);
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .blogs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .blog-card {
+            background-color: rgba(31, 41, 55, 0.6);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            padding: 20px;
+        }
+
+        .blog-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .blog-excerpt {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .editor-panel {
+            background-color: rgba(31, 41, 55, 0.6);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            background-color: rgba(17, 24, 39, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 15px;
+            color: var(--light);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            resize: vertical;
+        }
+
+        #preview {
+            min-height: 400px;
+            padding: 15px;
+            background-color: rgba(17, 24, 39, 0.6);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-wrap: break-word;
+        }
+
+        #preview h1, #preview h2, #preview h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: var(--light);
+        }
+
+        #preview p {
+            margin-bottom: 1em;
+        }
+
+        #preview code {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        #preview pre {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        #preview blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            margin-left: 0;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(17, 24, 39, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            color: var(--light);
+            font-family: inherit;
+        }
+
+        .blog-detail {
+            background-color: rgba(31, 41, 55, 0.6);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 40px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .blog-detail-header {
+            margin-bottom: 30px;
+        }
+
+        .blog-detail-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .blog-detail-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .blog-detail-content {
+            line-height: 1.8;
+        }
+
+        .blog-detail-content h1, 
+        .blog-detail-content h2, 
+        .blog-detail-content h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: var(--light);
+        }
+
+        .blog-detail-content p {
+            margin-bottom: 1.5em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            color: var(--gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Markdown cheat sheet */
+        .cheat-sheet {
+            background-color: rgba(17, 24, 39, 0.6);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cheat-sheet summary {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 10px;
+        }
+
+        .cheat-sheet table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .cheat-sheet th, .cheat-sheet td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cheat-sheet th {
+            color: var(--primary);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: var(--success);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-blog"></i>
+                <span>Markdown Blog</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-view="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-view="editor">New Post</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="home-view" class="view active">
+            <div class="hero">
+                <h1>Create Beautiful Blogs With Markdown</h1>
+                <p>A modern, sleek blogging platform that allows you to write and format your content using simple markdown syntax. No distractions, just writing.</p>
+                <button class="btn btn-primary" id="create-new">
+                    <i class="fas fa-plus"></i> Create New Post
+                </button>
+            </div>
+
+            <h2>Recent Posts</h2>
+            <div id="blogs-container" class="blogs-grid">
+                <!-- Blog posts will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div id="editor-view" class="view">
+            <h2>Create New Post</h2>
+            
+            <div class="cheat-sheet">
+                <details>
+                    <summary>Markdown Cheat Sheet</summary>
+                    <table>
+                        <tr>
+                            <th>Element</th>
+                            <th>Syntax</th>
+                        </tr>
+                        <tr>
+                            <td>Heading</td>
+                            <td># H1, ## H2, ### H3</td>
+                        </tr>
+                        <tr>
+                            <td>Bold</td>
+                            <td>**bold text**</td>
+                        </tr>
+                        <tr>
+                            <td>Italic</td>
+                            <td>*italicized text*</td>
+                        </tr>
+                        <tr>
+                            <td>Blockquote</td>
+                            <td>&gt; blockquote</td>
+                        </tr>
+                        <tr>
+                            <td>Ordered List</td>
+                            <td>1. First item, 2. Second item</td>
+                        </tr>
+                        <tr>
+                            <td>Unordered List</td>
+                            <td>- First item, - Second item</td>
+                        </tr>
+                        <tr>
+                            <td>Code</td>
+                            <td>`code`</td>
+                        </tr>
+                        <tr>
+                            <td>Horizontal Rule</td>
+                            <td>---</td>
+                        </tr>
+                        <tr>
+                            <td>Link</td>
+                            <td>[title](https://example.com)</td>
+                        </tr>
+                        <tr>
+                            <td>Image</td>
+                            <td>![alt text](image.jpg)</td>
+                        </tr>
+                    </table>
+                </details>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" class="form-control" placeholder="Enter blog title">
+            </div>
+
+            <div class="editor-container">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Editor</div>
+                        <div>
+                            <button class="btn btn-outline" id="clear-editor">
+                                <i class="fas fa-broom"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="markdown-editor" placeholder="Write your blog content in markdown here..."></textarea>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Preview</div>
+                    </div>
+                    <div id="preview"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-primary" id="publish-btn">
+                    <i class="fas fa-paper-plane"></i> Publish Post
+                </button>
+            </div>
+        </div>
+
+        <div id="detail-view" class="view">
+            <div id="blog-detail" class="blog-detail">
+                <!-- Blog detail will be dynamically inserted here -->
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-outline" id="back-to-home">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Modern Markdown Blog. Built with HTML, CSS, and JavaScript.</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const views = document.querySelectorAll('.view');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const markdownEditor = document.getElementById('markdown-editor');
+        const preview = document.getElementById('preview');
+        const titleInput = document.getElementById('title');
+        const publishBtn = document.getElementById('publish-btn');
+        const clearEditorBtn = document.getElementById('clear-editor');
+        const blogsContainer = document.getElementById('blogs-container');
+        const blogDetail = document.getElementById('blog-detail');
+        const createNewBtn = document.getElementById('create-new');
+        const backToHomeBtn = document.getElementById('back-to-home');
+        const toast = document.getElementById('toast');
+
+        // Configure marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            }
+        });
+
+        // Sample blog data
+        let blogs = JSON.parse(localStorage.getItem('blogs')) || [
+            {
+                id: 1,
+                title: 'Getting Started with Markdown',
+                content: `# Getting Started with Markdown
+
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents.
+
+## Why Use Markdown?
+
+- It's easy to learn and use
+- It's portable across platforms
+- It's quickly becoming a writing standard
+
+## Basic Syntax
+
+Here are some of the most commonly used markdown syntax:
+
+### Headers
+# H1
+## H2
+### H3
+
+### Emphasis
+*italic* or _italic_
+**bold** or __bold__
+
+### Lists
+Unordered:
+- Item 1
+- Item 2
+- Item 3
+
+Ordered:
+1. First item
+2. Second item
+3. Third item
+
+### Code
+Inline code: \`console.log('Hello World')\`
+
+Code block:
+\`\`\`javascript
+function helloWorld() {
+    console.log('Hello World');
+}
+\`\`\`
+
+### Links
+[Google](https://www.google.com)
+
+### Images
+![Alt text](/path/to/image.jpg)
+
+---
+
+Start writing in markdown today to create beautifully formatted documents with ease!`,
+                date: 'June 15, 2023',
+                image: 'https://images.unsplash.com/photo-1589652717521-10c0d092dea9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
+            },
+            {
+                id: 2,
+                title: 'The Future of Web Development',
+                content: `# The Future of Web Development
+
+Web development is constantly evolving, with new frameworks, libraries, and tools being released regularly.
+
+## Current Trends
+
+- Jamstack architecture
+- Serverless functions
+- AI-assisted development
+- Low-code platforms
+
+## Predictions for the Next Decade
+
+1. **WebAssembly will become mainstream** - Allowing high-performance applications to run in the browser.
+
+2. **AI will play a bigger role** - From code generation to automated testing.
+
+3. **More focus on privacy and security** - With increasing regulations.
+
+4. **Progressive Web Apps will replace many native apps** - Offering similar experiences without installation.
+
+## Conclusion
+
+The future of web development is exciting and full of possibilities. Staying updated with the latest trends and continuously learning is key to success in this field.`,
+                date: 'June 10, 2023',
+                image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80'
+            }
+        ];
+
+        // Initialize the app
+        function init() {
+            renderBlogs();
+            setupEventListeners();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const view = link.getAttribute('data-view');
+                    showView(view);
+                    
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
+
+            // Markdown editor input
+            markdownEditor.addEventListener('input', updatePreview);
+
+            // Publish blog post
+            publishBtn.addEventListener('click', publishPost);
+
+            // Clear editor
+            clearEditorBtn.addEventListener('click', clearEditor);
+
+            // Create new post button
+            createNewBtn.addEventListener('click', () => {
+                showView('editor');
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector('[data-view="editor"]').classList.add('active');
+            });
+
+            // Back to home button
+            backToHomeBtn.addEventListener('click', () => {
+                showView('home');
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector('[data-view="home"]').classList.add('active');
+            });
+        }
+
+        // Update markdown preview
+        function updatePreview() {
+            const markdown = markdownEditor.value;
+            preview.innerHTML = marked.parse(markdown);
+        }
+
+        // Clear editor
+        function clearEditor() {
+            markdownEditor.value = '';
+            titleInput.value = '';
+            updatePreview();
+        }
+
+        // Publish new blog post
+        function publishPost() {
+            const title = titleInput.value.trim();
+            const content = markdownEditor.value.trim();
+            
+            if (!title || !content) {
+                showToast('Please fill in both title and content', 'error');
+                return;
+            }
+
+            const newBlog = {
+                id: Date.now(),
+                title,
+                content,
+                date: new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }),
+                image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
+            };
+
+            blogs.unshift(newBlog);
+            saveBlogs();
+            renderBlogs();
+            clearEditor();
+            showView('home');
+            
+            // Update active nav link
+            navLinks.forEach(l => l.classList.remove('active'));
+            document.querySelector('[data-view="home"]').classList.add('active');
+            
+            showToast('Blog published successfully!');
+        }
+
+        // Save blogs to localStorage
+        function saveBlogs() {
+            localStorage.setItem('blogs', JSON.stringify(blogs));
+        }
+
+        // Render blog posts
+        function renderBlogs() {
+            if (blogs.length === 0) {
+                blogsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-feather-alt"></i>
+                        <h3>No blog posts yet</h3>
+                        <p>Create your first blog post to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            blogsContainer.innerHTML = blogs.map(blog => `
+                <div class="blog-card" data-id="${blog.id}">
+                    <img src="${blog.image}" alt="${blog.title}">
+                    <div class="blog-content">
+                        <h3 class="blog-title">${blog.title}</h3>
+                        <p class="blog-excerpt">${blog.content.substring(0, 100)}...</p>
+                        <div class="blog-meta">
+                            <span>${blog.date}</span>
+                            <span><i class="fas fa-clock"></i> 5 min read</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click event to blog cards
+            document.querySelectorAll('.blog-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = parseInt(card.getAttribute('data-id'));
+                    showBlogDetail(id);
+                });
+            });
+        }
+
+        // Show blog detail
+        function showBlogDetail(id) {
+            const blog = blogs.find(b => b.id === id);
+            if (!blog) return;
+
+            blogDetail.innerHTML = `
+                <div class="blog-detail-header">
+                    <h1 class="blog-detail-title">${blog.title}</h1>
+                    <div class="blog-detail-meta">
+                        <span><i class="fas fa-calendar"></i> ${blog.date}</span>
+                        <span><i class="fas fa-clock"></i> 5 min read</span>
+                    </div>
+                </div>
+                <div class="blog-detail-content">
+                    ${marked.parse(blog.content)}
+                </div>
+            `;
+
+            showView('detail');
+        }
+
+        // Show specific view
+        function showView(viewName) {
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(`${viewName}-view`).classList.add('active');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.style.backgroundColor = type === 'error' ? 'var(--danger)' : 'var(--success)';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
